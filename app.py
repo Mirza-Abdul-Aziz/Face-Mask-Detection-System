@@ -1,6 +1,9 @@
 import os
 import numpy as np
 import urllib.request
+from skimage.io import imread
+from skimage.transform import resize
+from skimage.color import rgb2gray
 from flask import Flask, flash, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 import cv2
@@ -38,13 +41,12 @@ def upload_image():
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        userimage = cv2.imread( 'static/uploads/{}'.format(filename))
-        userinput_img_resized = cv2.resize(userimage, (224, 224))
-        userinput_img_grayscale = cv2.cvtColor(
-        userinput_img_resized, cv2.COLOR_BGR2GRAY)
+        userimage = imread( 'static/uploads/{}'.format(filename))
+        userinput_img_resized = resize(userimage, (224, 224))
+        userinput_img_grayscale = rgb2gray(
+        userinput_img_resized)
         userimg_array = np.array(userinput_img_grayscale, dtype='float32')
         userimg_array = userimg_array.flatten()
-        userimage = userimg_array/255
         userimage = userimage.reshape(1, -1)
         predicted_recurrence = model.predict(userimage)
 
@@ -57,8 +59,7 @@ def upload_image():
     else:
         flash('Allowed image types are -> png, jpg, jpeg, gif')
         return redirect(request.url)
-
-
+    
 @app.route('/display/<filename>')
 def display_image(filename):
     return redirect(url_for('static', filename='uploads/' + filename), code=301)
