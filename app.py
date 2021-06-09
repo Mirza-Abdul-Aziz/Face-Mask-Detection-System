@@ -6,7 +6,6 @@ from skimage.transform import resize
 from skimage.color import rgb2gray
 from flask import Flask, flash, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
-import cv2
 import pickle
 
 UPLOAD_FOLDER = 'static/uploads/'
